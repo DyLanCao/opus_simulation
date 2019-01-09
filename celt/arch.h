@@ -96,9 +96,7 @@ static OPUS_INLINE void _celt_fatal(const char *str, const char *file, int line)
 #endif
 
 #define PRINT_MIPS(file)
-
 #ifdef FIXED_POINT
-
 typedef opus_int16 opus_val16;
 typedef opus_int32 opus_val32;
 typedef opus_int64 opus_val64;

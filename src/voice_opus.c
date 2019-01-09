@@ -3,7 +3,7 @@
 #include "opus_private.h"
 #include "opus_memory.h"
 #include "voice_opus.h"
-#include "hal_trace.h"
+//#include "hal_trace.h"
 
 static uint8_t is_voice_opus_initialized = 0;
 static uint8_t is_voice_opus_encoder_initialized = 0;
@@ -136,7 +136,7 @@ int voice_opus_init(VOICE_OPUS_CONFIG_T* pConfig, uint8_t* ptr)
     if (!is_voice_opus_initialized) {
 		voice_opus_config = *pConfig;
 		voice_opus_heap = ptr;
-		TRACE("voice_opus_heap 0x%x", voice_opus_heap);
+		printf("voice_opus_heap 0x%x", voice_opus_heap);
         rt_system_heap_init(ptr,  (void *)((uint32_t)ptr + (voice_opus_config.heapSize-1)));
 
         is_voice_opus_initialized = 1;

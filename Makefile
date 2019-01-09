@@ -1,20 +1,19 @@
 CC = gcc
 
-DIR_INC = ./include
-DIR_INC_BASE = ./celt
-DIR_INC_LM = .//celt/fixed
 DIR_SRC = ./src
 DIR_ROOT = ./
 DIR_OBJ = ./obj
 DIR_BIN = ./bin
 
-SRC = $(wildcard ${DIR_SRC}/*.c) \
-	  $(wildcard ${DIR_ROOT}/celt/*.c) \
+SRC = $(wildcard ${DIR_ROOT}/celt/*.c) \
 	  $(wildcard ${DIR_ROOT}/celt/fixed/*.c) \
 	  $(wildcard ${DIR_ROOT}/silk/*.c) \
 	  $(wildcard ${DIR_ROOT}/silk/fixed/*.c) \
+	  $(wildcard ${DIR_SRC}/*.c) \
 
 OBJ = $(patsubst %.c,${DIR_OBJ}/%.o,$(notdir ${SRC}))
+
+DEFS	= -DFIXED_POINT -DDISABLE_FLOAT_API -DOPUS_BUILD -DCUT=1
 
 TARGET = opus_test
 
@@ -23,15 +22,16 @@ inclib = -lpthread
 BIN_TARGET = ${DIR_BIN}/${TARGET}
 
 ccflags-y += \
+	-Iinclude \
 	-Icelt \
 	-Icelt/fixed \
 	-Isilk \
 	-Isilk/fixed \
-	-Iinclude \
 	-Isrc 
 
-#CFLAGS = -g -O2 -Wall -I${DIR_INC} -I${DIR_INC_BASE} -I${DIR_INC_LM}
-ccflags-y += -g -O2 -Wall 
+ccflags-y += -g -Os -Wall
+
+ccflags-y += $(DEFS) 
 
 ${BIN_TARGET} : ${OBJ}
 	@echo 链接生成文件目标文件

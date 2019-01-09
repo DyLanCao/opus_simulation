@@ -2,12 +2,12 @@
 #include "stdint.h"
 #include "stdlib.h"
 #include "string.h"
-#include "plat_types.h"
+//#include "plat_types.h"
 #include "opus_memory.h"
-#include "cmsis_os.h"
-#include "hal_trace.h"
-#include "hal_uart.h"
-#include "cmsis_nvic.h"
+//#include "cmsis_os.h"
+//#include "hal_trace.h"
+//#include "hal_uart.h"
+//#include "cmsis_nvic.h"
 
 #define RT_USING_HEAP
 #define RT_USING_SMALL_MEM
@@ -16,8 +16,14 @@
 #define rt_uint16_t uint16_t
 #define rt_uint32_t uint32_t
 
+/*
+#ifndef TRACE
+#define TRACE printf
+#endif
+*/
+
 #define RT_NULL NULL
-#define RT_ASSERT(cond)       { if (!(cond)) { TRACE("%s line: %d\n", __func__, __LINE__); while(1); } }
+#define RT_ASSERT(cond)     //  { if (!(cond)) { printf("%s line: %d\n", __func__, __LINE__); while(1); } }
 
 /* #define RT_MEM_DEBUG */
 #define RT_MEM_STATS
@@ -125,7 +131,7 @@ void rt_system_heap_init(void *begin_addr, void *end_addr)
     }
     else
     {
-        TRACE("mem init, error begin address 0x%x, and end address 0x%x\n",
+        printf("mem init, error begin address 0x%x, and end address 0x%x\n",
                    (rt_uint32_t)begin_addr, (rt_uint32_t)end_addr);
 
         return;
@@ -134,7 +140,7 @@ void rt_system_heap_init(void *begin_addr, void *end_addr)
     /* point to begin address of heap */
     heap_ptr = (rt_uint8_t *)begin_align;
 
-    TRACE("mem init, heap begin address 0x%x, size %d\n",
+    printf("mem init, heap begin address 0x%x, size %d\n",
                                 (rt_uint32_t)heap_ptr, mem_size_aligned);
 
     /* initialize the start of the heap */
@@ -188,14 +194,14 @@ void *rt_malloc(rt_size_t size)
         uart_printf("malloc size %d\n", size);
 #endif
 
-	TRACE("ask for %d bytes left %d", size, mem_size_aligned);
+    printf("ask for %d bytes left %d", size, mem_size_aligned);
 
     /* alignment size */
     size = RT_ALIGN(size, RT_ALIGN_SIZE);
 
     if (size > mem_size_aligned)
     {
-        TRACE("no memory\n");
+        printf("no memory\n");
 
         return RT_NULL;
     }
@@ -329,7 +335,7 @@ void *rt_realloc(void *rmem, rt_size_t newsize)
     newsize = RT_ALIGN(newsize, RT_ALIGN_SIZE);
     if (newsize > mem_size_aligned)
     {
-        TRACE("realloc: out of memory\n");
+        printf("realloc: out of memory\n");
 
         return RT_NULL;
     }
@@ -429,11 +435,11 @@ void *rt_calloc(rt_size_t count, rt_size_t size)
     /* allocate 'count' objects of size 'size' */
     p = rt_malloc(count * size);
 
-    lock = int_lock();
+    //lock = int_lock();
     /* zero the memory */
     if (p)
         memset(p, 0, count * size);
-    int_unlock(lock);
+    //int_unlock(lock);
     return p;
 }
 
@@ -457,7 +463,7 @@ void rt_free(void *rmem)
     if ((rt_uint8_t *)rmem < (rt_uint8_t *)heap_ptr ||
         (rt_uint8_t *)rmem >= (rt_uint8_t *)heap_end)
     {
-        TRACE("illegal memory\n");
+        printf("illegal memory\n");
 
         return;
     }
@@ -478,7 +484,7 @@ void rt_free(void *rmem)
     osSemaphoreWait(heap_sem, osWaitForever);
 #endif
 
-	TRACE("Free 0x%x", rmem);
+	printf("Free 0x%x", rmem);
 
     /* ... which has to be in a used state ... */
     RT_ASSERT(mem->used);

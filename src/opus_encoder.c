@@ -51,7 +51,7 @@
 #include "float/structs_FLP.h"
 #endif
 
-#include "hal_trace.h"
+//#include "hal_trace.h"
 
 #define MAX_ENCODER_BUFFER 480
 
