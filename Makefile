@@ -10,12 +10,13 @@ SRC = $(wildcard ${DIR_ROOT}/celt/*.c) \
 	  $(wildcard ${DIR_ROOT}/silk/*.c) \
 	  $(wildcard ${DIR_ROOT}/silk/fixed/*.c) \
 	  $(wildcard ${DIR_SRC}/*.c) \
+	  $(wildcard ${DIR_ROOT}/test/*.c) \
 
 OBJ = $(patsubst %.c,${DIR_OBJ}/%.o,$(notdir ${SRC}))
 
 DEFS	= -DFIXED_POINT -DDISABLE_FLOAT_API -DOPUS_BUILD -DCUT=1
 
-TARGET = opus_test
+TARGET = opus
 
 inclib = -lpthread
 
@@ -34,14 +35,11 @@ ccflags-y += -g -Os -Wall
 ccflags-y += $(DEFS) 
 
 ${BIN_TARGET} : ${OBJ}
-	@echo 链接生成文件目标文件
 	${CC} ${ccflags-y} ${OBJ} ${inclib} -o $@ -lm
 
 ${DIR_OBJ}/%.o : ${SRC} 
-	@echo 编译文件开始..
 	$(CC) ${ccflags-y} -c $?
 	-mv *.o $(DIR_OBJ)/
-	@echo 编译文件完成
 
 
 #.PHONY : clean run
