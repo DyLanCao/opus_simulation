@@ -38,10 +38,10 @@ typedef struct
 #define VOICE_OPUS_COMPLEXITY 			(0)
 #define VOICE_OPUS_PACKET_LOSS_PERC 	(0)
 #define VOICE_SIZE_PER_SAMPLE			(2)	// 16 bits, 1 channel
-#define VOICE_OPUS_APP 					(OPUS_APPLICATION_VOIP)
-#define VOICE_OPUS_BANDWIDTH 			(OPUS_BANDWIDTH_WIDEBAND)
-#define VOICE_OPUS_BITRATE 				(16000)
-#define VOICE_OPUS_SAMPLE_RATE			(16000)
+#define VOICE_OPUS_APP 					(OPUS_APPLICATION_AUDIO)
+#define VOICE_OPUS_BANDWIDTH 			(OPUS_BANDWIDTH_FULLBAND)
+#define VOICE_OPUS_BITRATE 				(64000)
+#define VOICE_OPUS_SAMPLE_RATE			(48000)
 #define VOICE_SIGNAL_TYPE				(OPUS_SIGNAL_VOICE)
 
 #if defined(LC_MMSE_NOISE_SUPPRESS) || defined(COHERENT_DENOISE)
@@ -68,6 +68,8 @@ typedef struct
 
 
 int voice_opus_init(VOICE_OPUS_CONFIG_T* pConfig, uint8_t* ptrHeap);
+int voice_opus_init_encoder(uint16_t sampleRate);
+int voice_opus_init_decoder(uint16_t sampleRate);
 int voice_opus_deinit(void);
 uint32_t voice_opus_encode(uint8_t *bitstream, uint8_t *speech, uint32_t sampleCount, uint8_t isReset);
 uint32_t voice_opus_decode(uint8_t *speech, uint32_t speechLen, uint8_t *bitstream, uint32_t sampleCount, uint8_t isReset);

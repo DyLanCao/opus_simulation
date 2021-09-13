@@ -23,115 +23,142 @@
 //#include "webrtc_test.h"
 //#include "webrtc_main.h"
 //#include "nsx_main.h"
-
-#define MAXSTRLEN 1024
-
-#define SAMPLE_LENGTH 128
+#include "opus.h"
 
 
-typedef unsigned char uint8_t;
+#define FRAME_SIZE 960
+#define SAMPLE_RATE 48000
+#define CHANNELS 1
+#define APPLICATION OPUS_APPLICATION_AUDIO
+#define BITRATE 64000
 
-#define true 1;
-#define false 0;
+#define MAX_FRAME_SIZE 6*960
+#define MAX_PICKET_SIZE 3*1276
 
-static uint8_t opusEncodeIsReset;
-static uint8_t opus_encode_cache_buff[100];
-
-
-static void opus_init(void)
+uint32_t voice_opus_encode_test(OpusEncoder *st, uint8_t *bitstream, uint8_t *speech, uint32_t sampleCount, uint8_t isReset)
 {
-	/*
-    uint8_t* opus_voice_heap_ptr;
 
-    mem_alloc(&opus_voice_heap_ptr,   
-    VOICE_OPUS_HEAP_SIZE);
-    
-    voice_opus_init(&opusConfig, opus_voice_heap_ptr);
-	*/
-
-    opusEncodeIsReset = true;
+	uint32_t outputBytes = opus_encode(st, (opus_int16*)bitstream, sampleCount, speech, sampleCount*4);
+	return outputBytes;
 }
 
-static void opus_deinit(void)
+uint32_t voice_opus_decode_test(OpusDecoder *st,uint8_t *speech, uint32_t speechLen, uint8_t *bitstream, uint32_t sampleCount, uint8_t isReset)
 {
-    //voice_opus_deinit();
 
-    opusEncodeIsReset = false;
-} 
-
+	uint32_t outputPcmCount = opus_decode(st, speech, speechLen, (opus_int16*)bitstream, sampleCount, 0);
+	return outputPcmCount;
+}
 
 int main(int argc, char *argv[])
 {
-	if(argc != 3)
-	{
-		fprintf(stderr, "Usage: <in> <out>\n");
-		return -1;
-	}
-	char *fileIn  = argv[1];
-	char *fileOut = argv[2];
-	//ZeusFront front;
-	int status;
+        if(argc != 3)
+        {
+                fprintf(stderr, "Usage: <in> <out>\n");
+                return -1;
+        }
+        char *fileIn  = argv[1];
+        char *fileOut = argv[2];
+        //ZeusFront front;
+        int status;
 
-	clock_t start, finish;
-	double  duration;
-	int count;
-	//  status = front.FrontInit(16000, 16, 6, 3, 3);
-	//  test_func_web();
-	//WebRtcNsx_denoise_init(16000,1);
+        clock_t start, finish;
+        double  duration;
+        int count;
+        int err;
 
-	FILE *inFp  = fopen(fileIn,"r");
-	FILE *outFp = fopen(fileOut,"w");
-	if(inFp == NULL || outFp == NULL)
-	{
-		fprintf(stderr, "failed to open pcm\n");
-		return -1;
-	}
-	int tempSize = 320;
-	short *in  = (short*)calloc(tempSize, sizeof(short));
-	short *out = (short*)calloc(tempSize, sizeof(short));
-	int pcmLen = tempSize;
+        FILE *fin = fopen(fileIn,"r");
+        FILE *fout = fopen(fileOut,"w");
+        if(fin == NULL || fout == NULL)
+        {
+                fprintf(stderr, "failed to open pcm\n");
+                return -1;
+        }
 
-	short tmp_in[SAMPLE_LENGTH],tmp_out[SAMPLE_LENGTH];
+        opus_int16 in[FRAME_SIZE*CHANNELS],out[MAX_FRAME_SIZE*CHANNELS];
+        unsigned char cbits[MAX_PICKET_SIZE];
+        int nbBytes;
 
-	//static short in[160], out[160];
-    unsigned int encodeOutputsize,decodeOutputsize;
+        OpusEncoder *encoder;
+        OpusDecoder *decoder;
 
-	opus_init();
+        encoder = opus_encoder_create(SAMPLE_RATE,CHANNELS,APPLICATION,&err);
+        if(err < 0)
+        {
+                fprintf(stderr,"failed to create an encoder",opus_strerror(err));
+                return EXIT_FAILURE;
+        }
 
-	start = clock();
+        err = opus_encoder_ctl(encoder,OPUS_SET_BITRATE(BITRATE));
+        if(err < 0)
+        {
+                fprintf(stderr,"failed to set an encoder",opus_strerror(err));
+                return EXIT_FAILURE;
+        }
 
-	while(pcmLen > 0)
-	{
-		pcmLen = fread(in, sizeof(short), tempSize, inFp);
+        decoder = opus_decoder_create(SAMPLE_RATE,CHANNELS,&err);
 
-		//WebRtcNsx_Alg_Process(tmp_in,tmp_out);
-		//memcpy(out,in,pcmLen*sizeof(short));
-		encodeOutputsize = voice_opus_encode((uint8_t*)in, opus_encode_cache_buff, tempSize*sizeof(short), opusEncodeIsReset);
-    	
-		decodeOutputsize = voice_opus_decode(opus_encode_cache_buff,encodeOutputsize,out,tempSize*sizeof(short),opusEncodeIsReset);
+        if(err < 0)
+        {
+                fprintf(stderr,"failed to create an decoder",opus_strerror(err));
+                return EXIT_FAILURE;
+        }
 
-		opusEncodeIsReset = false;
+		voice_opus_init_encoder(SAMPLE_RATE);
+		voice_opus_init_decoder(SAMPLE_RATE);
 
-		printf(".. count:%d decodeOutputsize:%d encodeOutputsize:%d \n\t",count,decodeOutputsize,encodeOutputsize);
+        while(1)
+        {
+                int i;
+                unsigned char pcm_bytes[MAX_FRAME_SIZE*CHANNELS*2];
+                int frame_size;
 
-		//
-		fwrite(out, sizeof(short), tempSize, outFp);
-		count++;
+                int test = fread(pcm_bytes,sizeof(short)*CHANNELS,FRAME_SIZE,fin);
+                if(test <= 0)
+                {
 
-	}
+                        printf("read test:%d  ms\n",test);
+                        break;
+                }
 
-	//   test_func_web();
-	//test_aaa(1000);
+                for(i = 0; i<CHANNELS*FRAME_SIZE;i++)
+                        in[i] = pcm_bytes[2*i + 1]<<8|pcm_bytes[2*i];
 
-	finish = clock();
-	printf("count:%d speed time:%f \n",count,(double)(finish - start) / CLOCKS_PER_SEC);
+                start = clock();
+                //nbBytes = voice_opus_encode_test(encoder,in,cbits,FRAME_SIZE,0);
+				nbBytes = voice_opus_encode(in,cbits,FRAME_SIZE,0);
+                if(nbBytes < 0)
+                {
+                        fprintf(stderr,"failed to encoder",opus_strerror(err));
+                        return EXIT_FAILURE;
+                }
 
-	/*
-	   fclose(inFp);
-	   fclose(outFp);
-	   free(in);
-	   free(out);
-	   */
+				frame_size = voice_opus_decode(cbits,nbBytes,out,MAX_FRAME_SIZE,0);
 
-	return 0;
+                finish = clock();
+
+                printf("count:%d speed time:%f ms\n",count,(double)(finish - start)*1000 / CLOCKS_PER_SEC);
+
+                if(frame_size < 0)
+                {
+                        fprintf(stderr,"failed to  decoder",opus_strerror(err));
+                        return EXIT_FAILURE;
+                }
+
+                for(i = 0; i < CHANNELS*frame_size; i++)
+                {
+                        pcm_bytes[2*i] = out[i]&0xff;
+                        pcm_bytes[2*i + 1] = (out[i]>>8)&0xff;
+                }
+                count++;
+                fwrite(pcm_bytes,sizeof(short),frame_size*CHANNELS,fout);
+        }
+
+
+        //opus_encoder_destory(encoder);
+        //opus_decoder_destory(decoder);
+
+        fclose(fin);
+        fclose(fout);
+
+        return 0;
 }
