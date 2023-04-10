@@ -50,16 +50,16 @@ int voice_opus_init_encoder(uint16_t sampleRate)
         return -2;
     }
     opus_encoder_ctl(voice_opus_enc, OPUS_SET_BITRATE(voice_opus_config.bitRate));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_BANDWIDTH(voice_opus_config.bandWidth));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_VBR(voice_opus_config.isUseVbr));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_VBR_CONSTRAINT(voice_opus_config.isConstraintUseVbr));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_COMPLEXITY(voice_opus_config.complexity));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_INBAND_FEC(voice_opus_config.isUseInBandFec));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_FORCE_CHANNELS(voice_opus_config.channelCnt));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_DTX(voice_opus_config.isUseDtx));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_PACKET_LOSS_PERC(voice_opus_config.packetLossPercentage));
-    // opus_encoder_ctl(voice_opus_enc, OPUS_SET_SIGNAL(voice_opus_config.signalType));
-	// opus_encoder_ctl(voice_opus_enc, OPUS_SET_EXPERT_FRAME_DURATION(voice_opus_config.periodPerFrame));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_BANDWIDTH(voice_opus_config.bandWidth));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_VBR(voice_opus_config.isUseVbr));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_VBR_CONSTRAINT(voice_opus_config.isConstraintUseVbr));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_COMPLEXITY(voice_opus_config.complexity));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_INBAND_FEC(voice_opus_config.isUseInBandFec));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_FORCE_CHANNELS(voice_opus_config.channelCnt));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_DTX(voice_opus_config.isUseDtx));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_PACKET_LOSS_PERC(voice_opus_config.packetLossPercentage));
+    opus_encoder_ctl(voice_opus_enc, OPUS_SET_SIGNAL(voice_opus_config.signalType));
+	opus_encoder_ctl(voice_opus_enc, OPUS_SET_EXPERT_FRAME_DURATION(voice_opus_config.periodPerFrame));
 
 	is_voice_opus_encoder_initialized = 1;
 
@@ -97,16 +97,16 @@ int voice_opus_init_decoder(uint16_t sampleRate)
 	opus_int32 skip;
 		
     opus_decoder_ctl(voice_opus_dec, OPUS_SET_BITRATE(voice_opus_config.bitRate));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_BANDWIDTH(voice_opus_config.bandWidth));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_VBR(voice_opus_config.isUseVbr));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_VBR_CONSTRAINT(voice_opus_config.isConstraintUseVbr));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_COMPLEXITY(voice_opus_config.complexity));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_INBAND_FEC(voice_opus_config.isUseInBandFec));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_FORCE_CHANNELS(voice_opus_config.channelCnt));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_DTX(voice_opus_config.isUseDtx));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_PACKET_LOSS_PERC(voice_opus_config.packetLossPercentage));
-    // opus_decoder_ctl(voice_opus_dec, OPUS_SET_SIGNAL(voice_opus_config.signalType));
-	// opus_decoder_ctl(voice_opus_dec, OPUS_SET_EXPERT_FRAME_DURATION(voice_opus_config.periodPerFrame));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_BANDWIDTH(voice_opus_config.bandWidth));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_VBR(voice_opus_config.isUseVbr));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_VBR_CONSTRAINT(voice_opus_config.isConstraintUseVbr));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_COMPLEXITY(voice_opus_config.complexity));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_INBAND_FEC(voice_opus_config.isUseInBandFec));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_FORCE_CHANNELS(voice_opus_config.channelCnt));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_DTX(voice_opus_config.isUseDtx));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_PACKET_LOSS_PERC(voice_opus_config.packetLossPercentage));
+    opus_decoder_ctl(voice_opus_dec, OPUS_SET_SIGNAL(voice_opus_config.signalType));
+	opus_decoder_ctl(voice_opus_dec, OPUS_SET_EXPERT_FRAME_DURATION(voice_opus_config.periodPerFrame));
 
 	// opus_decoder_ctl(voice_opus_dec, OPUS_GET_LOOKAHEAD(&skip));
 	is_voice_opus_decoder_initialized = 1;
