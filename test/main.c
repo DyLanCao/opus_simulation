@@ -50,6 +50,9 @@ uint32_t voice_opus_decode_test(OpusDecoder *st,uint8_t *speech, uint32_t speech
 
 #define FRAME_OPUS 80
 uint32_t data_num = 0;
+char file_data[200] = "check_result.txt";
+char txt_data[200];
+
 #if 1
 int main(int argc, char *argv[])
 {
@@ -76,13 +79,13 @@ int main(int argc, char *argv[])
                 return -1;
         }
 
-        // FILE *fin= fopen(fileIn,"r");
-        // FILE *fout = fopen(fileOut,"w");
-        // if(fin == NULL || fout == NULL)
-        // {
-        //         fprintf(stderr, "failed to open pcm\n");
-        //         return -1;
-        // }
+        FILE *txt_file  = fopen(file_data,"w");
+        if(txt_file == NULL)
+        {
+                fprintf(stderr, "failed to open txt \n");
+                return -1;
+        }
+
 
         opus_int16 in[FRAME_SIZE*CHANNELS],out[MAX_FRAME_SIZE*CHANNELS];
         unsigned char cbits[MAX_PICKET_SIZE];
@@ -93,7 +96,6 @@ int main(int argc, char *argv[])
         voice_opus_init_decoder(SAMPLE_RATE);
         int frame_size,cnt = 0;
         unsigned char pcm_bytes[MAX_FRAME_SIZE*CHANNELS*2];
-        #if 1
         while(1)
         {
                 unsigned char buf1[2];
@@ -112,11 +114,11 @@ int main(int argc, char *argv[])
                                 n = fread(buf2,sizeof(unsigned char), 2,data_file);
 
                                 //dump8(buf2,2);
-                                // if(buf2[0] > 0)
-                                // {
-                                //         sprintf(txt_data,"err code is:%d file name is:%s\n\r",buf2[0],fileIn);
-                                //         fwrite(txt_data,strlen(txt_data),1,txt_file);
-                                // }
+                                if(buf2[0] > 0)
+                                {
+                                        sprintf(txt_data,"err code is:%d file name is:%s\n\r",buf2[0],fileIn);
+                                        fwrite(txt_data,strlen(txt_data),1,txt_file);
+                                }
                                 printf("read buf2 is:0x%x 0x%x \n\r",buf2[0],buf2[1]);
                                 //if (n > 0 && (buf2[0] == 0x00) &&(buf2[1] == 0x28))
                                 if (n > 0)
@@ -149,59 +151,9 @@ int main(int argc, char *argv[])
         
         finish = clock();
         printf("all speed time:%f \n",(double)(finish - start) / CLOCKS_PER_SEC);
-        #endif
 
-        while(1)
-        {
-                int i;
-                unsigned char pcm_bytes[MAX_FRAME_SIZE*CHANNELS*2];
-                int frame_size;
-
-                int test = fread(pcm_bytes,sizeof(short)*CHANNELS,FRAME_SIZE,data_file);
-                if(test <= 0)
-                {
-
-                        printf("read test:%d  ms\n",test);
-                        break;
-                }
-
-		//memset(pcm_bytes,0x55,2*FRAME_SIZE);
-		// for(i = 0; i<CHANNELS*FRAME_SIZE;i++)
-                //         in[i] = pcm_bytes[2*i + 1]<<8|pcm_bytes[2*i];
-
-                start = clock();
-                //nbBytes = voice_opus_encode_test(encoder,in,cbits,FRAME_SIZE,0);
-		nbBytes = voice_opus_encode(pcm_bytes,cbits,FRAME_SIZE,0);
-                if(nbBytes < 0)
-                {
-                        fprintf(stderr,"failed to encoder",opus_strerror(err));
-                        return EXIT_FAILURE;
-                }
-
-		frame_size = voice_opus_decode(cbits,nbBytes,out,MAX_FRAME_SIZE,0);
-
-                finish = clock();
-
-                printf("count:%d speed time:%f ms encode_size:%d frame_size:%d \n",count,(double)(finish - start)*1000 / CLOCKS_PER_SEC,nbBytes,frame_size);
-
-                if(frame_size < 0)
-                {
-                        fprintf(stderr,"failed to  decoder",opus_strerror(err));
-                        return EXIT_FAILURE;
-                }
-
-                // for(i = 0; i < CHANNELS*frame_size; i++)
-                // {
-                //         pcm_bytes[2*i] = out[i]&0xff;
-                //         pcm_bytes[2*i + 1] = (out[i]>>8)&0xff;
-                // }
-                count++;
-                fwrite((short*)out,sizeof(short),frame_size*CHANNELS,fout);
-        }
-
-
-        //opus_encoder_destory(encoder);
-        //opus_decoder_destory(decoder);
+        // opus_encoder_destory(encoder);
+        // opus_decoder_destory(decoder);
 
         fclose(data_file);
         //fclose(fin);
